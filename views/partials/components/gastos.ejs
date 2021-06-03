@@ -1,0 +1,18 @@
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Fecha</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Cantidad</th>
+      </tr>
+    </thead>
+    <tbody>
+        <% listGastos.forEach(function(gasto){ %>
+          <tr>
+        <th scope="row"><%=gasto.nombre%></th>
+          <td>$<%=Number(gasto.valor).toLocaleString('de-DE')%></td>
+          <td><%=gasto.fecha%></td>
+        <% }); %>
+      </tr>
+    </tbody>
+  </table>
