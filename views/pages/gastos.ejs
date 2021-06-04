@@ -1,0 +1,15 @@
+<%- include('../partials/header') %>
+
+<h2 style="text-align: center;">Nuevo Gasto</h2>
+<form class="form-group" action="/gasto" method="POST">
+  <input  class="form-control" id="nombreGasto" name="nombreGasto" type="text" placeholder="Nuevo gasto">
+  <input  class="form-control" id="valorGasto" name="valorGasto" type="number" placeholder="Cantidad">
+  <input name="fecha" type="date">
+  <button  class="btn btn-dark" type="submit" name="bGasto">Ingresar</button>
+</form>
+<%- include('../partials/components/gastos') %>
+
+
+
+
+<%- include('../partials/footer') %>

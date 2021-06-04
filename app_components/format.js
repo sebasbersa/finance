@@ -1,8 +1,8 @@
 //jshint esversion:6
-exports.formatearFecha = function (date){ 
-    let dia = date.getDay()-1;
-    let mes = date.getMonth()+1;
-    let anio = date.getFullYear();
+exports.formatearFecha = function (fecha){ 
+    let dia = fecha.getDay()-1;
+    let mes = fecha.getMonth()+1;
+    let anio = fecha.getFullYear();
 
     if (dia < 10){
         dia = "0" + dia;

@@ -9,9 +9,9 @@
     <tbody>
         <% listGastos.forEach(function(gasto){ %>
           <tr>
-        <th scope="row"><%=gasto.nombre%></th>
+        <th scope="row"><%=gasto.fecha%></th>
+        <td><%=gasto.nombre%></td>
           <td>$<%=Number(gasto.valor).toLocaleString('de-DE')%></td>
-          <td><%=gasto.fecha%></td>
         <% }); %>
       </tr>
     </tbody>
