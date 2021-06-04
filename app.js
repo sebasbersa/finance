@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({
   }));
 
 //MONGOOSE CONECTION
-mongoose.connect("mongodb://localhost:27017/financeDB", {
+mongoose.connect("mongodb+srv://admin-sebastian:910nine99@cluster0.xevar.mongodb.net/financeDB", {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
@@ -103,6 +103,7 @@ app.post("/ingreso", function(req, res){
 });
 
 //inicializacion del puerto
+
 app.listen(process.env.PORT || 3000, function(){
     console.log("se escucha el puerto 3.000");
   });
