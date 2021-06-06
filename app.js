@@ -43,15 +43,15 @@ const usuarioSchema = ({
 const Usuario = mongoose.model("Usuario", usuarioSchema);
 const Flujo = mongoose.model("Flujo", flujoSchema);
 
- const primero = new Flujo({nombre: "Nuevos", valor: "0", fecha: "05-05-2021"})
+//  const primero = new Flujo({nombre: "Nuevos", valor: "0", fecha: "05-05-2021"})
 
-const primerUsuario = new Usuario ({
-    nombre: 'Sebastian',
-    email: 'sebas.ing.civ.berrios@gmail.com',
-    password: '123456',
-    ingresos: [primero],
-    gastos: [primero]
-});
+// const primerUsuario = new Usuario ({
+//     nombre: 'Sebastian',
+//     email: 'sebas.ing.civ.berrios@gmail.com',
+//     password: '123456',
+//     ingresos: [primero],
+//     gastos: [primero]
+// });
 
 //primerUsuario.save();
 
@@ -102,7 +102,6 @@ app.route('/ingresos')
     
         Usuario.findOne({email: userEmail}, function(err,found){
             if (!err){
-                console.log(found);
                 found.ingresos.push(ingreso);
                 found.save();
             }
@@ -135,11 +134,39 @@ app.route('/gastos')
 
         Usuario.findOne({email: userEmail}, function(err,found){
         if (!err){
-            console.log(found);
             found.gastos.push(gasto);
             found.save();
         }
         });
+        res.redirect("/gastos");
+    });
+
+app.route('/ingresos/delete')
+    .post(function(req, res){
+        const elemento = req.body;
+        Usuario.updateOne(
+            { email: userEmail },
+            { $pull: { ingresos: { _id: elemento.id } } },
+            { multi: false },function(err){
+                if(err){
+                    console.log(err);
+                }
+            }
+          );
+        res.redirect("/ingresos");
+    });
+app.route('/gastos/delete')
+    .post(function(req, res){
+        const elemento = req.body;
+        Usuario.updateOne(
+            { email: userEmail },
+            { $pull: { gastos: { _id: elemento.id } } },
+            { multi: false },function(err){
+                if(err){
+                    console.log(err);
+                }
+            }
+          );
         res.redirect("/gastos");
     });
 

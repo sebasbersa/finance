@@ -4,6 +4,7 @@
       <th scope="col">Fecha</th>
       <th scope="col">Nombre</th>
       <th scope="col">Cantidad</th>
+      <th scope="col">Eliminar</th>
     </tr>
   </thead>
   <tbody>
@@ -12,6 +13,11 @@
       <th scope="row"><%=ingreso.fecha%></th>
       <td><%=ingreso.nombre%></td>
       <td>$<%=Number(ingreso.valor).toLocaleString('de-DE')%></td>
+      <td>
+        <form method="POST" action="/delete">
+          <button id="buttonjeje" class="btn btn-dark"type="submit" name='id' value=<%= ingreso.id %> >Eliminar</button>
+        </form>
+      </td>
       </tr>
       <% }); %>
   </tbody>
