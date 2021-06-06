@@ -14,7 +14,7 @@
       <td><%=ingreso.nombre%></td>
       <td>$<%=Number(ingreso.valor).toLocaleString('de-DE')%></td>
       <td>
-        <form method="POST" action="/delete">
+        <form method="POST" action="/ingresos/delete">
           <button id="buttonjeje" class="btn btn-dark"type="submit" name='id' value=<%= ingreso.id %> >Eliminar</button>
         </form>
       </td>
