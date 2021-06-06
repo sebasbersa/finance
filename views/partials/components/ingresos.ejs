@@ -9,9 +9,9 @@
   <tbody>
       <% listIngresos.forEach(function(ingreso){ %>
         <tr>
-      <th scope="row"><%=ingreso.nombre%></th>
-        <td>$<%=Number(ingreso.valor).toLocaleString('de-DE')%></td>
-        <td><%=ingreso.fecha%></td>
+      <th scope="row"><%=ingreso.fecha%></th>
+      <td><%=ingreso.nombre%></td>
+      <td>$<%=Number(ingreso.valor).toLocaleString('de-DE')%></td>
       </tr>
       <% }); %>
   </tbody>

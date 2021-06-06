@@ -24,21 +24,47 @@ mongoose.connect("mongodb+srv://admin-sebastian:910nine99@cluster0.xevar.mongodb
 });
 
 //SCHEMAS MONGOOSE
-const gastosSchema = {
+const flujoSchema = ({
     nombre: String,
     valor: Number,
     fecha: String
-}
-const ingresosSchema = {
+});
+
+
+const usuarioSchema = ({
     nombre: String,
-    valor: Number,
-    fecha: String
-}
+    email: String,
+    password: String,
+    ingresos: [flujoSchema],
+    gastos: [flujoSchema]
+});
 
 //MODELS MONGOOSE
-const Gasto = mongoose.model("Gasto", gastosSchema);
-const Ingreso = mongoose.model("Ingreso", gastosSchema);
+const Usuario = mongoose.model("Usuario", usuarioSchema);
+const Flujo = mongoose.model("Flujo", flujoSchema);
 
+ const primero = new Flujo({nombre: "Nuevos", valor: "0", fecha: "05-05-2021"})
+
+const primerUsuario = new Usuario ({
+    nombre: 'Sebastian',
+    email: 'sebas.ing.civ.berrios@gmail.com',
+    password: '123456',
+    ingresos: [primero],
+    gastos: [primero]
+});
+
+//primerUsuario.save();
+
+// Usuario.findOne({nombre: 'Sebastian'}, function(err,found){
+//     if (!err){
+//         console.log(found);
+//         const ingreso1 = new Flujo ({nombre: "pagina web", valor: "15000", fecha: "06-05-2021"});
+//         found.ingresos.push(ingreso1);
+//         found.save();
+//     }
+// });
+
+const userEmail = 'sebas.ing.civ.berrios@gmail.com';
 
 
 //const gastos = [];
@@ -48,62 +74,82 @@ const gastoPasivo = []
 const ingresoMensual = [];
 const ingresoPasivo = []
 
-//-----------GET REQUEST'S----------------------------
+//-----------HOME----------------------------
 app.get('/', function(req, res){
     res.render("home");
 });
 
-app.get('/ingresos', function(req, res){
-    Ingreso.find({}, function(error, foundIngresos){
-        if(error){
-            console.log(error);
-        }else{
-            res.render("pages/ingresos", {listIngresos: foundIngresos});
+//-----------INGRESOS------------------------
+app.route('/ingresos')
+    .get(function(req, res){
+        Usuario.findOne({email: userEmail}, function(err, foundUser){
+            if(err){
+                console.log(err);
+            }else{
+                res.render("pages/ingresos", {listIngresos: foundUser.ingresos});
+            }
+    });
+    })
+    .post(function(req, res){
+        const nIngreso = req.body.nombreIngreso;
+        const cantidad = req.body.valorIngreso;
+        let date = new Date(req.body.fecha);
+        //si la fecha viene vacía se ingresa la fecha de hoy
+        if (req.body.fecha === ''){
+            date = new Date();
         }
-});
-});
-app.get('/gastos', function(req, res){
-    Gasto.find({}, function(err, foundGastos){
-        if(err){
-            console.log(err);
-        }else{
-            res.render("pages/gastos", {listGastos: foundGastos});
+        const ingreso = new Flujo ({nombre: nIngreso, valor: cantidad, fecha: format.formatearFecha(date)});
+    
+        Usuario.findOne({email: userEmail}, function(err,found){
+            if (!err){
+                console.log(found);
+                found.ingresos.push(ingreso);
+                found.save();
+            }
+            });
+            res.redirect("/ingresos");
+        });
+
+//-----------GASTOS------------------------
+app.route('/gastos')
+    .get(function(req, res){
+        Usuario.findOne({email: userEmail}, function(err, foundUser){
+            if(err){
+                console.log(err);
+            }else{
+                res.render("pages/gastos", {listGastos: foundUser.gastos});
+            }
+    });
+    })
+
+    .post(function(req, res){
+        const nGasto = req.body.nombreGasto;
+        const cantidad = req.body.valorGasto;
+
+        let date = new Date(req.body.fecha);
+        //si la fecha viene vacía se ingresa la fecha de hoy
+        if (req.body.fecha === ''){
+            date = new Date();
         }
-});
-});
+        const gasto = new Flujo ({nombre: nGasto, valor: cantidad, fecha: format.formatearFecha(date)});
+
+        Usuario.findOne({email: userEmail}, function(err,found){
+        if (!err){
+            console.log(found);
+            found.gastos.push(gasto);
+            found.save();
+        }
+        });
+        res.redirect("/gastos");
+    });
 
 
-//-----------POST REQUEST'S----------------------------
-app.post("/gasto", function(req, res){
-    const nGasto = req.body.nombreGasto;
-    const cantidad = req.body.valorGasto;
 
-    let date = new Date(req.body.fecha);
-    //si la fecha viene vacía se ingresa la fecha de hoy
-    if (req.body.fecha === ''){
-        date = new Date();
-    }
-    const ingresar = new Gasto ({nombre: nGasto, valor: cantidad, fecha: format.formatearFecha(date)});
 
-    ingresar.save();
-    res.redirect("/gastos");
-});
 
-app.post("/ingreso", function(req, res){
-    const nIngreso = req.body.nombreIngreso;
-    const cantidad = req.body.valorIngreso;
-    let date = new Date(req.body.fecha);
-    //si la fecha viene vacía se ingresa la fecha de hoy
-    if (req.body.fecha === ''){
-        date = new Date();
-    }
-    const ingresar = new Ingreso ({nombre: nIngreso, valor: cantidad, fecha: format.formatearFecha(date)});
-    ingresar.save();
-    res.redirect("/ingresos");
-});
+
 
 //inicializacion del puerto
-
 app.listen(process.env.PORT || 3000, function(){
     console.log("se escucha el puerto 3.000");
   });
