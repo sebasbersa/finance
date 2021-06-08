@@ -1,0 +1,13 @@
+.nuevo-item {
+    width: 400px;
+}
+
+@media screen and (max-width: 400px){
+    .nuevo-item {
+        width: 90%;
+    }
+}
+
+.tablaFlujos {
+    width: 90%;
+}

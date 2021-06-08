@@ -74,19 +74,35 @@ const gastoPasivo = []
 const ingresoMensual = [];
 const ingresoPasivo = []
 
+//-------- const pagination tables
+const perPage = 6;
+
 //-----------HOME----------------------------
 app.get('/', function(req, res){
     res.render("home");
 });
 
+
 //-----------INGRESOS------------------------
+app.get('/ingresos/:page', function(req, res, next){
+    const page = req.params.page || 1;
+    Usuario.findOne({email: userEmail}, function(err, foundUser){
+        if(err){
+            console.log(err);
+        }else{
+            res.render("pages/ingresos", {pages: Math.ceil(foundUser.ingresos.length/perPage), current: page, listIngresos: foundUser.ingresos.slice(perPage * page - perPage , perPage * page )});
+        }
+    });
+});
+
 app.route('/ingresos')
     .get(function(req, res){
+        const page = req.params.page || 1;
         Usuario.findOne({email: userEmail}, function(err, foundUser){
             if(err){
                 console.log(err);
             }else{
-                res.render("pages/ingresos", {listIngresos: foundUser.ingresos});
+                res.render("pages/ingresos", {pages: Math.ceil(foundUser.ingresos.length/perPage), current: page, listIngresos: foundUser.ingresos.slice(perPage * page - perPage , perPage * page )});
             }
     });
     })
@@ -110,13 +126,24 @@ app.route('/ingresos')
         });
 
 //-----------GASTOS------------------------
+app.get('/gastos/:page', function(req, res, next){
+    const page = req.params.page || 1;
+    Usuario.findOne({email: userEmail}, function(err, foundUser){
+        if(err){
+            console.log(err);
+        }else{
+            res.render("pages/gastos", {pages: Math.ceil(foundUser.gastos.length/perPage), current: page, listGastos: foundUser.gastos.slice(perPage * page - perPage , perPage * page )});
+        }
+    });
+});
 app.route('/gastos')
     .get(function(req, res){
+        const page = req.params.page || 1;
         Usuario.findOne({email: userEmail}, function(err, foundUser){
             if(err){
                 console.log(err);
             }else{
-                res.render("pages/gastos", {listGastos: foundUser.gastos});
+                res.render("pages/gastos", {pages: Math.ceil(foundUser.gastos.length/perPage), current: page, listGastos: foundUser.gastos.slice(perPage * page - perPage , perPage * page )});
             }
     });
     })

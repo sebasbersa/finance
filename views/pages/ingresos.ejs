@@ -1,13 +1,23 @@
 <%- include('../partials/header') %>
-
-<h2 style="text-align: center;">Nuevo Ingreso</h2>
-<form class="form-group" action="/ingresos" method="POST">
-  <input  class="form-control" id="nombreIngreso" name="nombreIngreso" type="text" placeholder="Nuevo Ingreso">
-  <input  class="form-control" id="valorIngreso" name="valorIngreso" type="number" placeholder="Cantidad">
-  <input name="fecha" type="date">
-  <button  class="btn btn-dark" type="submit" name="bIngreso">Ingresar</button>
-</form>
-<%- include('../partials/components/ingresos') %>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-5">
+      <div align='center'>
+        <h3 style="text-align: center;">Nuevo Ingreso</h3>
+        <form class="form-group nuevo-item" action="/ingresos" method="POST">
+          <input  class="form-control" id="nombreIngreso" name="nombreIngreso" type="text" placeholder="Nuevo Ingreso">
+          <input  class="form-control" id="valorIngreso" name="valorIngreso" type="number" placeholder="Cantidad">
+          <input name="fecha" type="date">
+          <button  class="btn btn-dark" type="submit" name="bIngreso">Ingresar</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <h3 style="text-align: center;">Tabla de ingresos</h3>
+      <%- include('../partials/components/ingresos') %>
+    </div>
+  </div>
+</div>
 
 
 
