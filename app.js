@@ -9,7 +9,7 @@ const format = require(__dirname + "/app_components/format.js");
 
 const app = express();
 
-//setting ejs 
+//setting ejs
 app.set('view engine', 'ejs')
 app.use(express.static("public"));
 //setting body-parser
@@ -30,7 +30,6 @@ const flujoSchema = ({
     fecha: String
 });
 
-
 const usuarioSchema = ({
     nombre: String,
     email: String,
@@ -38,10 +37,15 @@ const usuarioSchema = ({
     ingresos: [flujoSchema],
     gastos: [flujoSchema]
 });
-
-//MODELS MONGOOSE
+//
+// //MODELS MONGOOSE
 const Usuario = mongoose.model("Usuario", usuarioSchema);
 const Flujo = mongoose.model("Flujo", flujoSchema);
+
+let dInGasto = null;
+let dEndGasto = null;
+let dInIngreso = null;
+let dEndIngreso = null;
 
 //  const primero = new Flujo({nombre: "Nuevos", valor: "0", fecha: "05-05-2021"})
 
@@ -66,7 +70,6 @@ const Flujo = mongoose.model("Flujo", flujoSchema);
 
 const userEmail = 'sebas.ing.civ.berrios@gmail.com';
 
-
 //const gastos = [];
 const gastoMensual = [];
 const gastoPasivo = []
@@ -84,90 +87,183 @@ app.get('/', function(req, res){
 
 
 //-----------INGRESOS------------------------
-app.get('/ingresos/:page', function(req, res, next){
-    const page = req.params.page || 1;
+app.route('/ingresos')
+.get(function(req, res){
+  const page = req.query.page || 1;
+  const dateIn = req.query.dateIn;
+  const dateEnd = req.query.dateEnd;
     Usuario.findOne({email: userEmail}, function(err, foundUser){
         if(err){
             console.log(err);
         }else{
-            res.render("pages/ingresos", {pages: Math.ceil(foundUser.ingresos.length/perPage), current: page, listIngresos: foundUser.ingresos.slice(perPage * page - perPage , perPage * page )});
+            if(dateIn != null && dateEnd != null){
+              res.render("pages/ingresos", {
+                pages: Math.ceil(foundUser.ingresos.length/perPage),
+                current: page,
+                dateIn: dateIn,
+                dateEnd: dateEnd,
+                listIngresos: foundUser.ingresos.filter(ingreso => format.entreFechas(ingreso.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page )
+                });
+              }else{
+                res.render("pages/ingresos", {
+                  pages: Math.ceil(foundUser.ingresos.length/perPage),
+                  current: page,
+                  dateIn: dateIn,
+                  dateEnd: dateEnd,
+                  listIngresos: foundUser.ingresos.slice(perPage * page - perPage , perPage * page )});
+                }
         }
-    });
 });
+})
+  .post(function(req, res){
+    const page = req.query.page || 1;
+    const dateIn = String(req.body.dateIn);
+    const dateEnd = String(req.body.dateEnd);
+    if(dateIn != null && dateEnd != null){
+      dInIngreso = dateIn;
+      dEndIngreso = dateEnd;
+    res.redirect("/ingresos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
 
-app.route('/ingresos')
-    .get(function(req, res){
-        const page = req.params.page || 1;
-        Usuario.findOne({email: userEmail}, function(err, foundUser){
-            if(err){
-                console.log(err);
-            }else{
-                res.render("pages/ingresos", {pages: Math.ceil(foundUser.ingresos.length/perPage), current: page, listIngresos: foundUser.ingresos.slice(perPage * page - perPage , perPage * page )});
+  }
+  });
+
+app.post("/ingresos/pages", function(req, res){
+    const page = req.body.button;
+    const dateIn = dInIngreso;
+    const dateEnd = dEndIngreso;
+    let url = "/ingresos";
+      url = url + "?page=" + page;
+      if (dateIn != null && dateEnd != null){
+        url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
+      }
+      res.redirect(url);
+
+  });
+app.post("/ingresos/xFiltro", function(req, res){
+          const page = 1;
+          const dateIn = null;
+          const dateEnd = null;
+          dInIngreso = null;
+          dEndIngreso = null;
+          let url = "/ingresos";
+            url = url + "?page=" + page;
+            if (dateIn != null && dateEnd != null){
+              url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
             }
-    });
-    })
-    .post(function(req, res){
-        const nIngreso = req.body.nombreIngreso;
-        const cantidad = req.body.valorIngreso;
-        let date = new Date(req.body.fecha);
-        //si la fecha viene vacía se ingresa la fecha de hoy
-        if (req.body.fecha === ''){
-            date = new Date();
-        }
-        const ingreso = new Flujo ({nombre: nIngreso, valor: cantidad, fecha: format.formatearFecha(date)});
-    
-        Usuario.findOne({email: userEmail}, function(err,found){
+            res.redirect(url);
+        });
+
+app.post("/ingresos/nIngreso", function(req,res){
+
+            const nIngreso = req.body.nombreIngreso;
+            const cantidad = req.body.valorIngreso;
+
+            let date = new Date(req.body.fecha);
+            //si la fecha viene vacía se ingresa la fecha de hoy
+            if (req.body.fecha === ''){
+                date = new Date();
+            }
+            const gasto = new Flujo ({nombre: nIngreso, valor: cantidad, fecha: format.formatearFecha(date)});
+
+            Usuario.findOne({email: userEmail}, function(err,found){
             if (!err){
-                found.ingresos.push(ingreso);
+                found.ingresos.push(gasto);
                 found.save();
             }
             });
             res.redirect("/ingresos");
-        });
-
+            });
 //-----------GASTOS------------------------
-app.get('/gastos/:page', function(req, res, next){
-    const page = req.params.page || 1;
-    Usuario.findOne({email: userEmail}, function(err, foundUser){
-        if(err){
-            console.log(err);
-        }else{
-            res.render("pages/gastos", {pages: Math.ceil(foundUser.gastos.length/perPage), current: page, listGastos: foundUser.gastos.slice(perPage * page - perPage , perPage * page )});
-        }
-    });
-});
 app.route('/gastos')
     .get(function(req, res){
-        const page = req.params.page || 1;
+      const page = req.query.page || 1;
+      const dateIn = req.query.dateIn;
+      const dateEnd = req.query.dateEnd;
         Usuario.findOne({email: userEmail}, function(err, foundUser){
             if(err){
                 console.log(err);
             }else{
-                res.render("pages/gastos", {pages: Math.ceil(foundUser.gastos.length/perPage), current: page, listGastos: foundUser.gastos.slice(perPage * page - perPage , perPage * page )});
+                if(dateIn != null && dateEnd != null){
+                  res.render("pages/gastos", {
+                    pages: Math.ceil(foundUser.gastos.length/perPage),
+                    current: page,
+                    dateIn: dateIn,
+                    dateEnd: dateEnd,
+                    listGastos: foundUser.gastos.filter(gasto => format.entreFechas(gasto.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page )
+                    });
+                  }else{
+                    res.render("pages/gastos", {
+                      pages: Math.ceil(foundUser.gastos.length/perPage),
+                      current: page,
+                      dateIn: dateIn,
+                      dateEnd: dateEnd,
+                      listGastos: foundUser.gastos.slice(perPage * page - perPage , perPage * page )});
+                    }
             }
     });
     })
 
     .post(function(req, res){
-        const nGasto = req.body.nombreGasto;
-        const cantidad = req.body.valorGasto;
+      const page = req.query.page || 1;
+      const dateIn = String(req.body.dateIn);
+      const dateEnd = String(req.body.dateEnd);
+      if(dateIn != null && dateEnd != null){
+        dInGasto = dateIn;
+        dEndGasto = dateEnd;
+      res.redirect("/gastos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
 
-        let date = new Date(req.body.fecha);
-        //si la fecha viene vacía se ingresa la fecha de hoy
-        if (req.body.fecha === ''){
-            date = new Date();
-        }
-        const gasto = new Flujo ({nombre: nGasto, valor: cantidad, fecha: format.formatearFecha(date)});
-
-        Usuario.findOne({email: userEmail}, function(err,found){
-        if (!err){
-            found.gastos.push(gasto);
-            found.save();
-        }
-        });
-        res.redirect("/gastos");
+    }
     });
 
+app.post("/gastos/pages", function(req, res){
+  const page = req.body.button;
+  const dateIn = dInGasto;
+  const dateEnd = dEndGasto;
+  let url = "/gastos";
+    url = url + "?page=" + page;
+    if (dateIn != null && dateEnd != null){
+      url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
+    }
+    res.redirect(url);
+
+});
+
+app.post("/gastos/xFiltro", function(req, res){
+  const page = 1;
+  const dateIn = null;
+  const dateEnd = null;
+  dInGasto = null;
+  dEndGasto = null;
+  let url = "/gastos";
+    url = url + "?page=" + page;
+    if (dateIn != null && dateEnd != null){
+      url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
+    }
+    res.redirect(url);
+});
+
+app.post("/gastos/nGasto", function(req,res){
+
+    const nGasto = req.body.nombreGasto;
+    const cantidad = req.body.valorGasto;
+
+    let date = new Date(req.body.fecha);
+    //si la fecha viene vacía se ingresa la fecha de hoy
+    if (req.body.fecha === ''){
+        date = new Date();
+    }
+    const gasto = new Flujo ({nombre: nGasto, valor: cantidad, fecha: format.formatearFecha(date)});
+
+    Usuario.findOne({email: userEmail}, function(err,found){
+    if (!err){
+        found.gastos.push(gasto);
+        found.save();
+    }
+    });
+    res.redirect("/gastos");
+    });
+
+//-------- DELETE-----------------
 app.route('/ingresos/delete')
     .post(function(req, res){
         const elemento = req.body;
@@ -207,5 +303,3 @@ app.route('/gastos/delete')
 app.listen(process.env.PORT || 3000, function(){
     console.log("se escucha el puerto 3.000");
   });
-  
-
