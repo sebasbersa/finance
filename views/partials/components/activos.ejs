@@ -1,7 +1,7 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-7">
-      <form class="form-group" action="/gastos" method="post">
+      <form class="form-group" action="/activos" method="post">
         <input type="date" name="dateIn" value=<%=dateIn%>>
         <input type="date" name="dateEnd" value=<%=dateEnd%>>
         <button type="submit" class="btn btn-primary btn-sm" name="button">Filtrar</button>
@@ -18,46 +18,33 @@
 <table class="table tablaFlujos">
   <thead>
     <tr>
-      <th scope="col">Fecha</th>
       <th scope="col">Nombre</th>
       <th scope="col">Cantidad</th>
       <th scope="col">Eliminar</th>
     </tr>
   </thead>
   <tbody>
-      <% listGastos.forEach(function(gastos){ %>
+      <% listActivos.forEach(function(activo){ %>
         <tr>
-      <th scope="row">
-        <% if(gastos.fecha.getDate()+1<10){%>
-        0<%=gastos.fecha.getDate()+1%>
-        <% } else { %>
-          <%=gastos.fecha.getDate()+1%>
-          <% } %>
-          <% if(gastos.fecha.getMonth()+1<10){%>
-          / 0<%=gastos.fecha.getMonth()+1%>
-          <% } else { %>
-          / <%=gastos.fecha.getMonth()+1%>
-            <% } %>
-        / <%=gastos.fecha.getFullYear()%>
-      </th>
-      <td><%=gastos.nombre%></td>
-      <td>$<%=Number(gastos.valor).toLocaleString('de-DE')%></td>
+      <th><%=activo.nombre%></th>
+      <td>$<%=Number(activo.dinero).toLocaleString('de-DE')%></td>
       <td>
-        <form method="POST" action="/gastos/delete">
-          <button id=<%= gastos.id %> class="btn btn-outline-danger btn-sm" type="submit" name='id' value=<%= gastos.id %> >Eliminar</button>
+        <form method="POST" action="/activos/delete">
+          <button id=<%= activo.id %> class="btn btn-outline-danger btn-sm" type="submit" name='id' value=<%= activo.id %> >Eliminar</button>
         </form>
       </td>
       </tr>
       <% }); %>
   </tbody>
 </table>
+
 <% if (pages > 0) { %>
   <ul class="pagination text-center">
       <% if (current == 1) { %>
           <li class="page-item disabled"><a class="page-link" >First</a></li>
       <% } else { %>
           <li  class="page-item">
-            <form action="/gastos/pages" method="post">
+            <form action="/activos/pages" method="post">
               <button class="page-link" type="submit" name="button" value="1">First</button>
             </form>
           </li>
@@ -70,7 +57,7 @@
           <% if (i == current) { %>
               <li class="page-item active" ><a class="page-link" ><%= i %></a></li>
           <% } else { %>
-            <form action="/gastos/pages" method="post">
+            <form action="/activos/pages" method="post">
               <button class="page-link" type="submit" name="button" value=<%= i %>><%= i %></button>
             </form>
           <% } %>

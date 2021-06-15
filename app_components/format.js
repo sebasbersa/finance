@@ -14,21 +14,20 @@ exports.formatearFecha = function (fecha){
 };
 
 exports.entreFechas = function(fecha, dateIn, dateEnd){
-  let dia = parseInt(fecha.slice(0, 2));
-  let month = parseInt(fecha.slice(3,5));
-  let year = parseInt(fecha.slice(6,10));
+  let fechaReal = fecha;
 
   let diaIn = parseInt(dateIn.slice(8,10));
   let monthIn = parseInt(dateIn.slice(6,8));
   let yearIn = parseInt(dateIn.slice(0,5));
 
+  fechaIn = new Date(yearIn,monthIn,diaIn);
+
   let diaEnd = parseInt(dateEnd.slice(8,10));
   let monthEnd = parseInt(dateEnd.slice(6,8));
   let yearEnd = parseInt(dateEnd.slice(0,5));
+  fechaEnd = new Date(yearEnd,monthEnd,diaEnd);
 
-
-
-  if(compararFechas(dia,month,year,diaIn,monthIn,yearIn) && compararFechas(diaEnd, monthEnd, yearEnd, dia,month,year)){
+  if(compararFechas(fechaReal,fechaIn) && compararFechas(fechaEnd,fechaReal)){
     return true;
   }else{
     return false;
@@ -36,10 +35,10 @@ exports.entreFechas = function(fecha, dateIn, dateEnd){
 };
 
 
-function compararFechas(diaM, mesM, yearM, dia, mes, year){
+function compararFechas(fechaMay, fechaMen){
   //cumpleanos = new Date(1995,11,17);
-  let fechaMayor = new Date(yearM, mesM, diaM);
-  let fechaMenor = new Date(year, mes, dia);
+  let fechaMayor = fechaMay;
+  let fechaMenor = fechaMen;
 
   if(fechaMayor >= fechaMenor){
     return true;

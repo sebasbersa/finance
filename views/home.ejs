@@ -1,8 +1,46 @@
 <%- include('partials/header') %>
 
 
-<h1>Hola</h1>
+<h1>Dashboard</h1>
 
+<table class="table table-sm table-bordered table-striped table-hover" style="max-width: 600px;">
+  <thead class="table-primary">
+    <tr>
+      <th scope="col">INGRESOS</th>
+      <th scope="col">CANTIDAD</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <th>Ingresos Activos</th>
+    <td>$<%=activos.toLocaleString('de-DE')%></td>
+  </tr>
+  <tr>
+    <th>Ingresos Pasivos</th>
+    <td>$<%=pasivos.toLocaleString('de-DE')%></td>
+  </tr>
+  </tbody>
+</table>
+<br>
+
+<table class="table table-sm table-bordered table-striped table-hover" style="max-width: 600px;">
+  <thead class="table-primary">
+    <tr>
+      <th scope="col">GASTOS</th>
+      <th scope="col">CANTIDAD</th>
+    </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <th>Gastos Generales</th>
+    <td>$<%=ingresos.toLocaleString('de-DE')%></td>
+  </tr>
+  <tr>
+    <th>Gastos Mensuales</th>
+    <td>$<%=gastos.toLocaleString('de-DE')%></td>
+  </tr>
+  </tbody>
+</table>
 
 
 
