@@ -14,29 +14,35 @@ exports.formatearFecha = function (fecha){
 };
 
 exports.entreFechas = function(fecha, dateIn, dateEnd){
-  let fechaReal = fecha;
-
-  let diaIn = parseInt(dateIn.slice(8,10));
-  let monthIn = parseInt(dateIn.slice(6,8));
-  let yearIn = parseInt(dateIn.slice(0,5));
-
-  fechaIn = new Date(yearIn,monthIn,diaIn);
-
-  let diaEnd = parseInt(dateEnd.slice(8,10));
-  let monthEnd = parseInt(dateEnd.slice(6,8));
-  let yearEnd = parseInt(dateEnd.slice(0,5));
-  fechaEnd = new Date(yearEnd,monthEnd,diaEnd);
-
-  if(compararFechas(fechaReal,fechaIn) && compararFechas(fechaEnd,fechaReal)){
+  if(dateIn == null || dateEnd == null){
     return true;
-  }else{
-    return false;
+  }
+  else
+  {
+    let fechaReal = fecha
+    fechaReal.setDate(fechaReal.getDate()+1);
+
+    let diaIn = parseInt(dateIn.slice(8,10));
+    let monthIn = parseInt(dateIn.slice(6,8))-1;
+    let yearIn = parseInt(dateIn.slice(0,5));
+
+    fechaIn = new Date(yearIn,monthIn,diaIn);
+
+    let diaEnd = parseInt(dateEnd.slice(8,10));
+    let monthEnd = parseInt(dateEnd.slice(6,8))-1;
+    let yearEnd = parseInt(dateEnd.slice(0,5));
+    fechaEnd = new Date(yearEnd,monthEnd,diaEnd);
+
+    if(compararFechas(fechaReal,fechaIn) && compararFechas(fechaEnd,fechaReal)){
+      return true;
+    }else{
+      return false;
+    }
   }
 };
 
 
 function compararFechas(fechaMay, fechaMen){
-  //cumpleanos = new Date(1995,11,17);
   let fechaMayor = fechaMay;
   let fechaMenor = fechaMen;
 

@@ -1,0 +1,30 @@
+<%- include('../partials/header') %>
+<h3 align="center">Flujos</h3>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-5">
+      <div align='center'>
+        <h3 style="text-align: center;">Nuevo <%=flujo.name%> </h3>
+        <form class="form-group nuevo-item" action="/flujos/nFlujo" method="POST">
+          <input  class="form-control" id="nombreFlujo" name="nombreFlujo" type="text" placeholder="Nombre <%=flujo.name%>">
+          <input  class="form-control" id="valorFlujo" name="valorFlujo" type="number" placeholder="Cantidad">
+          <% if(flujo.name === "Ingreso" || flujo.name === "Gasto" ){ %>
+          <input name="fecha" type="date">
+          <% } %>
+          <br>
+          <button  class="btn btn-primary" type="submit" name="tipoFlujo" value=<%=flujo.name%>>Ingresar</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <h3 style="text-align: center;">Tabla de <%=flujo.tabla%> </h3>
+      <%- include('../partials/components/flujos') %>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+<%- include('../partials/footer') %>

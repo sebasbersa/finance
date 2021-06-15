@@ -27,7 +27,7 @@
       <% listActivos.forEach(function(activo){ %>
         <tr>
       <th><%=activo.nombre%></th>
-      <td>$<%=Number(activo.dinero).toLocaleString('de-DE')%></td>
+      <td>$<%=Number(activo.valor).toLocaleString('de-DE')%></td>
       <td>
         <form method="POST" action="/activos/delete">
           <button id=<%= activo.id %> class="btn btn-outline-danger btn-sm" type="submit" name='id' value=<%= activo.id %> >Eliminar</button>

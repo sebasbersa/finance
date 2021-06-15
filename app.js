@@ -31,7 +31,7 @@ const flujoSchema = ({
 });
 const dineroSchema = ({
   nombre: String,
-  dinero: Number
+  valor: Number
 });
 
 const usuarioSchema = ({
@@ -39,9 +39,11 @@ const usuarioSchema = ({
     email: String,
     password: String,
     ingresos: [flujoSchema],
-    gastos: [flujoSchema],
+    ingresosMensuales: [dineroSchema],
     activos: [dineroSchema],
-    pasivos: [dineroSchema]
+    gastos: [flujoSchema],
+    pasivos: [dineroSchema],
+    gastosMensuales: [dineroSchema]
 });
 
 
@@ -85,11 +87,11 @@ const thisDay = new Date();
 const userEmail = 'sebas.ing.civ.berrios@gmail.com';
 
 //const gastos = [];
-const gastoMensual = [];
-const gastoPasivo = []
-//const ingresos = [];
-const ingresoMensual = [];
-const ingresoPasivo = []
+// const gastoMensual = [];
+// const gastoPasivo = []
+// const ingresos = [];
+// const ingresoMensual = [];
+// const ingresoPasivo = []
 
 //-------- const pagination tables
 const perPage = 6;
@@ -108,10 +110,10 @@ app.route('/')
   Usuario.findOne({email: userEmail}, function(err, foundUser){
     if (!err){
       foundUser.activos.forEach((activo) => {
-        sumActivo = sumActivo + activo.dinero;
+        sumActivo = sumActivo + activo.valor;
       });
       foundUser.pasivos.forEach((pasivo) => {
-        sumPasivo = sumPasivo + pasivo.dinero;
+        sumPasivo = sumPasivo + pasivo.valor;
       });
       foundUser.ingresos.forEach((ingreso) => {
         if(format.mismoMes(mes, ingreso.fecha)){sumIngreso = sumIngreso + ingreso.valor;};
@@ -132,309 +134,345 @@ res.redirect(url)
 
 
 //-----------INGRESOS------------------------
+
+//-----------INGRESOS------------------------
+// app.route('/activos')
+// .get(function(req, res){
+// const page = req.query.page || 1;
+// const dateIn = req.query.dateIn;
+// const dateEnd = req.query.dateEnd;
+// Usuario.findOne({email: userEmail}, function(err, foundUser){
+//     if(err){
+//         console.log(err);
+//     }else{
+//         if(dateIn != null && dateEnd != null){
+//           res.render("pages/flujos", {
+//             pages: Math.ceil(foundUser.activos.length/perPage),
+//             current: page,
+//             dateIn: dateIn,
+//             dateEnd: dateEnd,
+//             listActivos: foundUser.activos.filter(activo => format.entreFechas(activo.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page )
+//             });
+//           }else{
+//             res.render("pages/activos", {
+//               pages: Math.ceil(foundUser.activos.length/perPage),
+//               current: page,
+//               dateIn: dateIn,
+//               dateEnd: dateEnd,
+//               listActivos: foundUser.activos.slice(perPage * page - perPage , perPage * page )});
+//             }
+//     }
+// });
+// })
+// .post(function(req, res){
+//   const page = req.query.page || 1;
+//   const dateIn = String(req.body.dateIn);
+//   const dateEnd = String(req.body.dateEnd);
+//   if(dateIn != null && dateEnd != null){
+//     dIn = dateIn;
+//     dEnd = dateEnd;
+//   res.redirect("/activos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
+// }
+// });
+//
+// app.post("/activos/pages", function(req, res){
+//   const page = req.body.button;
+//   const dateIn = dIn;
+//   const dateEnd = dEnd;
+//   let url = "/activos";
+//     url = url + "?page=" + page;
+//     if (dateIn != null && dateEnd != null){
+//       url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
+//     }
+//     res.redirect(url);
+//
+// });
+// app.post("/activos/xFiltro", function(req, res){
+//         const page = 1;
+//         const dateIn = null;
+//         const dateEnd = null;
+//         dIn = null;
+//         dEnd = null;
+//         let url = "/activos";
+//           url = url + "?page=" + page;
+//           if (dateIn != null && dateEnd != null){
+//             url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
+//           }
+//           res.redirect(url);
+//       });
+//
+// app.post("/activos/nActivo", function(req,res){
+//
+//           const nActivo = req.body.nombreActivo;
+//           const cantidad = req.body.valorActivo;
+//
+//           let date = new Date(req.body.fecha);
+//           //si la fecha viene vacía se ingresa la fecha de hoy
+//           if (req.body.fecha === ''){
+//               date = new Date();
+//               date.setDate(date.getDate() - 1);
+//           }
+//
+//           const activo = new Dinero ({nombre: nActivo, valor: cantidad});
+//
+//           Usuario.findOne({email: userEmail}, function(err,found){
+//           if (!err){
+//               found.activos.push(activo);
+//               found.save();
+//           }
+//           });
+//           res.redirect("/activos");
+//           });
+
+
+
+//flujos
 app.route('/ingresos')
-.get(function(req, res){
+  .get(function(req, res){
+    const page = req.query.page || 1;
+    const dateIn = req.query.dateIn;
+    const dateEnd = req.query.dateEnd;
+    dIn = dateIn;
+    dEnd = dateEnd;
+    const flujo = {name: "Ingreso", tabla: "Ingresos"}
+    //res.render('pages/flujos', {flujo})
+    Usuario.findOne({email: userEmail}, function(err, foundUser){
+      if(!err){
+          res.render("pages/flujos", {
+            flujo,
+            pages: Math.ceil(foundUser.ingresos.length/perPage),
+            current: page,
+            dateIn: dateIn,
+            dateEnd: dateEnd,
+            listFlujo: foundUser.ingresos.filter(ingreso => format.entreFechas(ingreso.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page)
+          })
+      }
+    });
+  });
+app.route('/gastos')
+  .get(function(req, res){
+    const page = req.query.page || 1;
+    const dateIn = req.query.dateIn;
+    const dateEnd = req.query.dateEnd;
+    dIn = dateIn;
+    dEnd = dateEnd;
+    const flujo = {name: "Gasto", tabla: "Gastos"}
+    //res.render('pages/flujos', {flujo})
+    Usuario.findOne({email: userEmail}, function(err, foundUser){
+      if(!err){
+          res.render("pages/flujos", {
+            flujo,
+            pages: Math.ceil(foundUser.gastos.length/perPage),
+            current: page,
+            dateIn: dateIn,
+            dateEnd: dateEnd,
+            listFlujo: foundUser.gastos.filter(gasto => format.entreFechas(gasto.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page)
+          })
+      }
+    });
+  });
+
+app.route('/activos')
+  .get(function(req, res){
   const page = req.query.page || 1;
   const dateIn = req.query.dateIn;
   const dateEnd = req.query.dateEnd;
+  const flujo = {name: "Activo", tabla: "Activos"}
   Usuario.findOne({email: userEmail}, function(err, foundUser){
-      if(err){
-          console.log(err);
-      }else{
-          if(dateIn != null && dateEnd != null){
-            res.render("pages/ingresos", {
-              pages: Math.ceil(foundUser.ingresos.length/perPage),
+      if(!err){
+        res.render("pages/flujos", {
+            flujo,
+            pages: Math.ceil(foundUser.activos.length/perPage),
+            current: page,
+            dateIn: dateIn,
+            dateEnd: dateEnd,
+            listFlujo: foundUser.activos.slice(perPage * page - perPage , perPage * page )});
+          }
+        });
+  });
+app.route('/pasivos')
+  .get(function(req, res){
+    const page = req.query.page || 1;
+    const dateIn = req.query.dateIn;
+    const dateEnd = req.query.dateEnd;
+    const flujo = {name: "Pasivo", tabla: "Pasivos"}
+    Usuario.findOne({email: userEmail}, function(err, foundUser){
+        if(!err){
+          res.render("pages/flujos", {
+              flujo,
+              pages: Math.ceil(foundUser.pasivos.length/perPage),
               current: page,
               dateIn: dateIn,
               dateEnd: dateEnd,
-              listIngresos: foundUser.ingresos.filter(ingreso => format.entreFechas(ingreso.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page )
-              });
-            }else{
-              res.render("pages/ingresos", {
-                pages: Math.ceil(foundUser.ingresos.length/perPage),
-                current: page,
-                dateIn: dateIn,
-                dateEnd: dateEnd,
-                listIngresos: foundUser.ingresos.slice(perPage * page - perPage , perPage * page )});
+              listFlujo: foundUser.pasivos.slice(perPage * page - perPage , perPage * page )});
+            }
+          });
+    });
+
+app.post('/flujos/nFlujo', function(req, res){
+          const nFlujo = req.body.nombreFlujo;
+          const cantidad = req.body.valorFlujo;
+          let date = new Date(req.body.fecha);
+          //si la fecha viene vacía se ingresa la fecha de hoy
+          if (req.body.fecha === ''){
+              date = new Date();
+              date.setDate(date.getDate() -1);
+          }
+         const newDinero = new Dinero ({nombre: nFlujo, valor: cantidad});
+         const newFlujo = new Flujo ({nombre: nFlujo, valor: cantidad, fecha: date});
+
+          Usuario.findOne({email: userEmail}, function(err,found){
+          if (!err){
+            if(req.body.tipoFlujo === "Ingreso"){
+              found.ingresos.push(newFlujo);
+              found.save();
+              res.redirect("/ingresos");
+            }
+            if(req.body.tipoFlujo === "Gasto"){
+              found.gastos.push(newFlujo);
+              found.save();
+              res.redirect("/gastos");
+            }
+            if(req.body.tipoFlujo === "Activo"){
+              found.activos.push(newDinero);
+              found.save();
+              res.redirect("/activos");
+            }
+            if(req.body.tipoFlujo === "Pasivo"){
+              found.pasivos.push(newDinero);
+              found.save();
+              res.redirect("/pasivos");
+            }
+          }
+          });
+        });
+
+app.route('/flujos/delete')
+  .post(function(req, res){
+          const elemento = req.body;
+          if(req.body.tipoFlujo === "Ingreso"){
+            console.log("es ingresos");
+            Usuario.updateOne(
+                { email: userEmail },
+                { $pull: { ingresos: { _id: elemento.id } } },
+                { multi: false },function(err){
+                    if(err){
+                        console.log(err);
+                    }
+                }
+              );
+            res.redirect("/ingresos");
+        }
+        if(req.body.tipoFlujo==="Gasto"){
+          Usuario.updateOne(
+              { email: userEmail },
+              { $pull: { gastos: { _id: elemento.id } } },
+              { multi: false },function(err){
+                  if(err){
+                      console.log(err);
+                  }
               }
+            );
+          res.redirect("/gastos");
       }
-});
-})
-.post(function(req, res){
+
+      if(req.body.tipoFlujo==="Activo"){
+        Usuario.updateOne(
+            { email: userEmail },
+            { $pull: { activos: { _id: elemento.id } } },
+            { multi: false },function(err){
+                if(err){
+                    console.log(err);
+                }
+            }
+          );
+        res.redirect("/activos");
+    }
+    if(req.body.tipoFlujo==="Pasivo"){
+      Usuario.updateOne(
+          { email: userEmail },
+          { $pull: { pasivos: { _id: elemento.id } } },
+          { multi: false },function(err){
+              if(err){
+                  console.log(err);
+              }
+          }
+        );
+      res.redirect("/pasivos");
+  }
+      })
+
+app.post('/flujos/filtros', function(req, res){
     const page = req.query.page || 1;
     const dateIn = String(req.body.dateIn);
     const dateEnd = String(req.body.dateEnd);
     if(dateIn != null && dateEnd != null){
       dIn = dateIn;
       dEnd = dateEnd;
-    res.redirect("/ingresos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
-
+      if(req.body.tipoFlujo === "Ingreso"){
+        res.redirect("/ingresos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
+      }
+      if(req.body.tipoFlujo === "Gasto"){
+        res.redirect("/gastos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
+      }
+      if(req.body.tipoFlujo === "Activo"){
+        res.redirect("/activos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
+      }
+      if(req.body.tipoFlujo === "Pasivo"){
+        res.redirect("/pasivos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
+      }
   }
   });
 
-app.post("/ingresos/pages", function(req, res){
-    const page = req.body.button;
-    const dateIn = dIn;
-    const dateEnd = dEnd;
-    let url = "/ingresos";
+app.post("/flujos/xFiltro", function(req, res){
+    const page = 1;
+    const dateIn = null;
+    const dateEnd = null;
+    dIn = null;
+    dEnd = null;
+    let url = "";
+    if(req.body.tipoFlujo === "Ingreso"){
+      url = "/ingresos";
+    }
+    if(req.body.tipoFlujo === "Gasto"){
+      url = "/gastos";
+    }
+    if(req.body.tipoFlujo === "Activo"){
+      url = "/activos";
+    }
+    if(req.body.tipoFlujo === "Pasivo"){
+      url = "/pasivos";
+    }
       url = url + "?page=" + page;
       if (dateIn != null && dateEnd != null){
         url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
       }
       res.redirect(url);
-
   });
-app.post("/ingresos/xFiltro", function(req, res){
-          const page = 1;
-          const dateIn = null;
-          const dateEnd = null;
-          dIn = null;
-          dEnd = null;
-          let url = "/ingresos";
-            url = url + "?page=" + page;
-            if (dateIn != null && dateEnd != null){
-              url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
-            }
-            res.redirect(url);
-        });
 
-app.post("/ingresos/nIngreso", function(req,res){
-
-            const nIngreso = req.body.nombreIngreso;
-            const cantidad = req.body.valorIngreso;
-
-            let date = new Date(req.body.fecha);
-            //si la fecha viene vacía se ingresa la fecha de hoy
-            if (req.body.fecha === ''){
-                date = new Date();
-                date.setDate(date.getDate() -1);
-            }
-
-            const gasto = new Flujo ({nombre: nIngreso, valor: cantidad, fecha: date});
-
-            Usuario.findOne({email: userEmail}, function(err,found){
-            if (!err){
-                found.ingresos.push(gasto);
-                found.save();
-            }
-            });
-            res.redirect("/ingresos");
-            });
-
-
-//-----------INGRESOS------------------------
-app.route('/activos')
-.get(function(req, res){
-const page = req.query.page || 1;
-const dateIn = req.query.dateIn;
-const dateEnd = req.query.dateEnd;
-Usuario.findOne({email: userEmail}, function(err, foundUser){
-    if(err){
-        console.log(err);
-    }else{
-        if(dateIn != null && dateEnd != null){
-          res.render("pages/activos", {
-            pages: Math.ceil(foundUser.activos.length/perPage),
-            current: page,
-            dateIn: dateIn,
-            dateEnd: dateEnd,
-            listActivos: foundUser.activos.filter(activo => format.entreFechas(activo.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page )
-            });
-          }else{
-            res.render("pages/activos", {
-              pages: Math.ceil(foundUser.activos.length/perPage),
-              current: page,
-              dateIn: dateIn,
-              dateEnd: dateEnd,
-              listActivos: foundUser.activos.slice(perPage * page - perPage , perPage * page )});
-            }
+app.post("/flujos/pages", function(req, res){
+    const page = req.body.button;
+    const dateIn = dIn;
+    const dateEnd = dEnd;
+    let url = "";
+    if(req.body.tipoFlujo === "Ingreso"){
+      url = "/ingresos";
     }
-});
-})
-.post(function(req, res){
-  const page = req.query.page || 1;
-  const dateIn = String(req.body.dateIn);
-  const dateEnd = String(req.body.dateEnd);
-  if(dateIn != null && dateEnd != null){
-    dIn = dateIn;
-    dEnd = dateEnd;
-  res.redirect("/activos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
-}
-});
-
-app.post("/activos/pages", function(req, res){
-  const page = req.body.button;
-  const dateIn = dIn;
-  const dateEnd = dEnd;
-  let url = "/activos";
-    url = url + "?page=" + page;
-    if (dateIn != null && dateEnd != null){
-      url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
+    if(req.body.tipoFlujo === "Gasto"){
+      url = "/gastos";
     }
-    res.redirect(url);
-
-});
-app.post("/activos/xFiltro", function(req, res){
-        const page = 1;
-        const dateIn = null;
-        const dateEnd = null;
-        dIn = null;
-        dEnd = null;
-        let url = "/activos";
-          url = url + "?page=" + page;
-          if (dateIn != null && dateEnd != null){
-            url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
-          }
-          res.redirect(url);
-      });
-
-app.post("/activos/nActivo", function(req,res){
-
-          const nActivo = req.body.nombreActivo;
-          const cantidad = req.body.valorActivo;
-
-          let date = new Date(req.body.fecha);
-          //si la fecha viene vacía se ingresa la fecha de hoy
-          if (req.body.fecha === ''){
-              date = new Date();
-              date.setDate(date.getDate() - 1);
-          }
-
-          const activo = new Dinero ({nombre: nActivo, dinero: cantidad});
-
-          Usuario.findOne({email: userEmail}, function(err,found){
-          if (!err){
-              found.activos.push(activo);
-              found.save();
-          }
-          });
-          res.redirect("/activos");
-          });
-
-
-
-//-----------GASTOS------------------------
-app.route('/gastos')
-    .get(function(req, res){
-      const page = req.query.page || 1;
-      const dateIn = req.query.dateIn;
-      const dateEnd = req.query.dateEnd;
-        Usuario.findOne({email: userEmail}, function(err, foundUser){
-            if(err){
-                console.log(err);
-            }else{
-                if(dateIn != null && dateEnd != null){
-                  res.render("pages/gastos", {
-                    pages: Math.ceil(foundUser.gastos.length/perPage),
-                    current: page,
-                    dateIn: dateIn,
-                    dateEnd: dateEnd,
-                    listGastos: foundUser.gastos.filter(gasto => format.entreFechas(gasto.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page )
-                    });
-                  }else{
-                    res.render("pages/gastos", {
-                      pages: Math.ceil(foundUser.gastos.length/perPage),
-                      current: page,
-                      dateIn: dateIn,
-                      dateEnd: dateEnd,
-                      listGastos: foundUser.gastos.slice(perPage * page - perPage , perPage * page )});
-                    }
-            }
-    });
-    })
-
-    .post(function(req, res){
-      const page = req.query.page || 1;
-      const dateIn = String(req.body.dateIn);
-      const dateEnd = String(req.body.dateEnd);
-      if(dateIn != null && dateEnd != null){
-        dIn = dateIn;
-        dEnd = dateEnd;
-      res.redirect("/gastos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
-
+    if(req.body.tipoFlujo === "Activo"){
+      url = "/activos";
     }
-    });
-
-app.post("/gastos/pages", function(req, res){
-  const page = req.body.button;
-  const dateIn = dIn;
-  const dateEnd = dEnd;
-  let url = "/gastos";
-    url = url + "?page=" + page;
-    if (dateIn != null && dateEnd != null){
-      url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
+    if(req.body.tipoFlujo === "Pasivo"){
+      url = "/pasivos";
     }
-    res.redirect(url);
-
-});
-
-app.post("/gastos/xFiltro", function(req, res){
-  const page = 1;
-  const dateIn = null;
-  const dateEnd = null;
-  dIn = null;
-  dEnd = null;
-  let url = "/gastos";
-    url = url + "?page=" + page;
-    if (dateIn != null && dateEnd != null){
-      url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
-    }
-    res.redirect(url);
-});
-
-app.post("/gastos/nGasto", function(req,res){
-
-    const nGasto = req.body.nombreGasto;
-    const cantidad = req.body.valorGasto;
-
-    let date = new Date(req.body.fecha);
-    //si la fecha viene vacía se ingresa la fecha de hoy
-    if (req.body.fecha === ''){
-        date = new Date();
-        date.setDate(date.getDate() -1);
-    }
-
-    const gasto = new Flujo ({nombre: nGasto, valor: cantidad, fecha: date});
-
-    Usuario.findOne({email: userEmail}, function(err,found){
-    if (!err){
-        found.gastos.push(gasto);
-        found.save();
-    }
-    });
-    res.redirect("/gastos");
-    });
-
-//-------- DELETE-----------------
-app.route('/ingresos/delete')
-    .post(function(req, res){
-        const elemento = req.body;
-        Usuario.updateOne(
-            { email: userEmail },
-            { $pull: { ingresos: { _id: elemento.id } } },
-            { multi: false },function(err){
-                if(err){
-                    console.log(err);
-                }
-            }
-          );
-        res.redirect("/ingresos");
-    });
-app.route('/gastos/delete')
-    .post(function(req, res){
-        const elemento = req.body;
-        Usuario.updateOne(
-            { email: userEmail },
-            { $pull: { gastos: { _id: elemento.id } } },
-            { multi: false },function(err){
-                if(err){
-                    console.log(err);
-                }
-            }
-          );
-        res.redirect("/gastos");
-    });
-
+      url = url + "?page=" + page;
+      if (dateIn != null && dateEnd != null){
+        url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
+      }
+      res.redirect(url);
+  });
 
 
 
