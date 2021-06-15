@@ -11,7 +11,7 @@
           <% if(flujo.name === "Ingreso" || flujo.name === "Gasto" ){ %>
           <input name="fecha" type="date">
           <% } %>
-          <br>
+          <br class="notmobil">
           <button  class="btn btn-primary" type="submit" name="tipoFlujo" value=<%=flujo.name%>>Ingresar</button>
         </form>
       </div>

@@ -1,20 +1,27 @@
 <%- include('partials/header') %>
-
-
 <h1>Dashboard</h1>
-<div class="container">
+<div class="container-fluid notmobil">
   <div class="row">
-    <div class="col-8"></div>
-    <div class="col-4">
-
+    <div class="col-6">
+    <div class="col-6">
       <form class="form-group" action="/" method="post">
         <h6 align="left">Filtrar por mes: </h6><input type="month" name="fecha" id="fecha" class="form-control" value=<%=mes%> >
         <button class="btn btn-primary btn-sm" type="submit" name="button">Filtrar</button>
       </form>
     </div>
-
   </div>
-
+</div>
+</div>
+<div class="container notdesktop">
+  <h1>notdesktop</h1>
+  <div class="row">
+    <div class="col-12">
+      <form class="form-group" action="/" method="post">
+        <h6 align="left">Filtrar por mes: </h6><input type="month" name="fecha" id="fecha" class="form-control" value=<%=mes%> >
+        <button class="btn btn-primary btn-sm" type="submit" name="button">Filtrar</button>
+      </form>
+    </div>
+  </div>
 </div>
 
 
@@ -27,8 +34,12 @@
   </thead>
   <tbody>
   <tr>
-    <th>Ingresos Activos</th>
+    <th>Ingresos</th>
     <td>$<%=ingresos.toLocaleString('de-DE')%></td>
+  </tr>
+  <tr>
+    <th>Ingresos Mensuales</th>
+    <td>$<%=ingresoMensual.toLocaleString('de-DE')%></td>
   </tr>
   <tr>
     <th>Ingresos Pasivos</th>
@@ -52,12 +63,52 @@
   </tr>
   <tr>
     <th>Gastos Mensuales</th>
+    <td>$<%=gastoMensual.toLocaleString('de-DE')%></td>
+  </tr>
+  <tr>
+    <th>Gastos de Pasivos</th>
     <td>$<%=pasivos.toLocaleString('de-DE')%></td>
   </tr>
   </tbody>
 </table>
-
-
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
+          <thead class="table-primary">
+            <tr>
+              <th scope="col">ACTIVO</th>
+              <th scope="col">CANTIDAD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% usuario.activos.forEach(function(activo){ %>
+            <tr>
+              <th><%=activo.nombre%></th>
+              <td><%= activo.valor %></td>
+            </tr>
+            <% }) %>
+      </table>
+    </div>
+    <div class="col">
+      <table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
+          <thead class="table-primary">
+            <tr>
+              <th scope="col">PASIVO</th>
+              <th scope="col">CANTIDAD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% usuario.pasivos.forEach(function(pasivo){ %>
+            <tr>
+              <th><%=pasivo.nombre%></th>
+              <td><%= pasivo.valor %></td>
+            </tr>
+            <% }) %>
+      </table>
+    </div>
+  </div>
+</div>
 
 
 

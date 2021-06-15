@@ -103,6 +103,8 @@ app.route('/')
   if(parseInt(thisDay.getMonth()) +1 < 10){
     mes = req.query.mes || String(thisDay.getFullYear()) + "-" + 0 + String(thisDay.getMonth()+1);
   }
+  let sumIngresoMensual = 0;
+  let sumGastoMensual = 0;
   let sumActivo= 0;
   let sumPasivo = 0;
   let sumIngreso = 0;
@@ -121,7 +123,22 @@ app.route('/')
       foundUser.gastos.forEach((gasto) => {
         if(format.mismoMes(mes, gasto.fecha)){sumGasto = sumGasto + gasto.valor;};
       });
-      res.render("home", {activos: sumActivo, pasivos: sumPasivo, ingresos: sumIngreso, gastos: sumGasto,usuario: foundUser, mes: mes});
+      foundUser.ingresosMensuales.forEach((ingreso) => {
+        sumIngresoMensual = sumIngresoMensual + ingreso.valor;
+      });
+      foundUser.gastosMensuales.forEach((gasto) => {
+        sumGastoMensual = sumGastoMensual + gasto.valor;
+      });
+      res.render("home", {
+        activos: sumActivo,
+        pasivos: sumPasivo,
+        ingresos: sumIngreso,
+        gastos: sumGasto,
+        usuario: foundUser,
+        mes: mes,
+        ingresoMensual: sumIngresoMensual,
+        gastoMensual: sumGastoMensual
+      });
     }
   });
 })
