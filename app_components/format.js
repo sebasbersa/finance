@@ -45,10 +45,18 @@ function compararFechas(fechaMay, fechaMen){
   }else{
     return false;
   }
+};
 
-
-
-
-
-
+exports.mismoMes = function mismoMes(mes, fecha){
+  let hoy = new Date();
+  if(mes!=1){
+    let year = parseInt(mes.slice(0,5));
+    let month = parseInt(mes.slice(5,7))-1;
+    hoy = new Date(year,month,1);
+  }
+  if (fecha.getFullYear() === hoy.getFullYear() && fecha.getMonth() === hoy.getMonth()){
+    return true;
+  }else{
+    return false;
+  };
 }

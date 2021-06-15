@@ -54,6 +54,7 @@ const Dinero = mongoose.model("Dinero", dineroSchema);
 let dIn = null;
 let dEnd= null;
 
+const thisDay = new Date();
 //const fecha = new Date(2021, 06, 12);
 //const primero = new Flujo({nombre: "Nuevos", valor: "0", fecha: fecha})
 
@@ -94,8 +95,13 @@ const ingresoPasivo = []
 const perPage = 6;
 
 //-----------HOME----------------------------
-app.get('/', function(req, res){
-  let  sumActivo= 0;
+app.route('/')
+.get(function(req, res){
+  let mes = req.query.mes || String(thisDay.getFullYear()) + "-" +String(thisDay.getMonth()+1);
+  if(parseInt(thisDay.getMonth()) +1 < 10){
+    mes = req.query.mes || String(thisDay.getFullYear()) + "-" + 0 + String(thisDay.getMonth()+1);
+  }
+  let sumActivo= 0;
   let sumPasivo = 0;
   let sumIngreso = 0;
   let sumGasto = 0;
@@ -108,16 +114,20 @@ app.get('/', function(req, res){
         sumPasivo = sumPasivo + pasivo.dinero;
       });
       foundUser.ingresos.forEach((ingreso) => {
-        sumIngreso = sumIngreso + ingreso.cantidad;
+        if(format.mismoMes(mes, ingreso.fecha)){sumIngreso = sumIngreso + ingreso.valor;};
       });
       foundUser.gastos.forEach((gasto) => {
-        sumGasto = sumGasto + gasto.cantidad;
+        if(format.mismoMes(mes, gasto.fecha)){sumGasto = sumGasto + gasto.valor;};
       });
-
-      res.render("home", {activos: sumActivo, pasivos: sumPasivo, ingresos: sumIngreso, gastos: sumGasto,usuario: foundUser});
+      res.render("home", {activos: sumActivo, pasivos: sumPasivo, ingresos: sumIngreso, gastos: sumGasto,usuario: foundUser, mes: mes});
     }
   });
-
+})
+.post(function(req, res){
+  let mes = req.body.fecha;
+  let url = "/";
+    url = url + "?mes=" + mes;
+res.redirect(url)
 });
 
 
@@ -287,7 +297,7 @@ app.post("/activos/nActivo", function(req,res){
           //si la fecha viene vacía se ingresa la fecha de hoy
           if (req.body.fecha === ''){
               date = new Date();
-              date.setDate(date.getDate() -1);
+              date.setDate(date.getDate() - 1);
           }
 
           const activo = new Dinero ({nombre: nActivo, dinero: cantidad});
@@ -380,7 +390,7 @@ app.post("/gastos/nGasto", function(req,res){
     let date = new Date(req.body.fecha);
     //si la fecha viene vacía se ingresa la fecha de hoy
     if (req.body.fecha === ''){
-        date = Date.now();
+        date = new Date();
         date.setDate(date.getDate() -1);
     }
 

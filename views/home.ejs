@@ -2,8 +2,23 @@
 
 
 <h1>Dashboard</h1>
+<div class="container">
+  <div class="row">
+    <div class="col-8"></div>
+    <div class="col-4">
 
-<table class="table table-sm table-bordered table-striped table-hover" style="max-width: 600px;">
+      <form class="form-group" action="/" method="post">
+        <h6 align="left">Filtrar por mes: </h6><input type="month" name="fecha" id="fecha" class="form-control" value=<%=mes%> >
+        <button class="btn btn-primary btn-sm" type="submit" name="button">Filtrar</button>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+
+
+<table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
   <thead class="table-primary">
     <tr>
       <th scope="col">INGRESOS</th>
@@ -23,7 +38,7 @@
 </table>
 <br>
 
-<table class="table table-sm table-bordered table-striped table-hover" style="max-width: 600px;">
+<table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
   <thead class="table-primary">
     <tr>
       <th scope="col">GASTOS</th>
@@ -33,11 +48,11 @@
   <tbody>
   <tr>
     <th>Gastos Generales</th>
-    <td>$<%=ingresos.toLocaleString('de-DE')%></td>
+    <td>$<%=gastos.toLocaleString('de-DE')%></td>
   </tr>
   <tr>
     <th>Gastos Mensuales</th>
-    <td>$<%=gastos.toLocaleString('de-DE')%></td>
+    <td>$0</td>
   </tr>
   </tbody>
 </table>
