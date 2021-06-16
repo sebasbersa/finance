@@ -1,6 +1,5 @@
 <%- include('../partials/header') %>
-<h3 align="center">Flujos</h3>
-<div class="container-fluid">
+<div class="container-fluid" style="margin-top: 20px;">
   <div class="row">
     <div class="col-lg-5">
       <div align='center'>
@@ -8,11 +7,11 @@
         <form class="form-group nuevo-item" action="/flujos/nFlujo" method="POST">
           <input  class="form-control" id="nombreFlujo" name="nombreFlujo" type="text" placeholder="Nombre <%=flujo.name%>">
           <input  class="form-control" id="valorFlujo" name="valorFlujo" type="number" placeholder="Cantidad">
-          <% if(flujo.name === "Ingreso" || flujo.name === "Gasto" ){ %>
+          <% if(flujo.id === 1 || flujo.id === 2 ){ %>
           <input name="fecha" type="date">
           <% } %>
           <br class="notmobil">
-          <button  class="btn btn-primary" type="submit" name="tipoFlujo" value=<%=flujo.name%>>Ingresar</button>
+          <button  class="btn btn-primary" type="submit" name="tipoFlujo" value=<%=flujo.id%>>Ingresar</button>
         </form>
       </div>
     </div>
@@ -23,7 +22,7 @@
   </div>
 </div>
 
-
+<p class="positionDescripcion"><%=flujo.descripcion%></p>
 
 
 

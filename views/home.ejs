@@ -24,56 +24,73 @@
   </div>
 </div>
 
-
-<table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
-  <thead class="table-primary">
-    <tr>
-      <th scope="col">INGRESOS</th>
-      <th scope="col">CANTIDAD</th>
-    </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <th>Ingresos</th>
-    <td>$<%=ingresos.toLocaleString('de-DE')%></td>
-  </tr>
-  <tr>
-    <th>Ingresos Mensuales</th>
-    <td>$<%=ingresoMensual.toLocaleString('de-DE')%></td>
-  </tr>
-  <tr>
-    <th>Ingresos Pasivos</th>
-    <td>$<%=activos.toLocaleString('de-DE')%></td>
-  </tr>
-  </tbody>
-</table>
-<br>
-
-<table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
-  <thead class="table-primary">
-    <tr>
-      <th scope="col">GASTOS</th>
-      <th scope="col">CANTIDAD</th>
-    </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <th>Gastos Generales</th>
-    <td>$<%=gastos.toLocaleString('de-DE')%></td>
-  </tr>
-  <tr>
-    <th>Gastos Mensuales</th>
-    <td>$<%=gastoMensual.toLocaleString('de-DE')%></td>
-  </tr>
-  <tr>
-    <th>Gastos de Pasivos</th>
-    <td>$<%=pasivos.toLocaleString('de-DE')%></td>
-  </tr>
-  </tbody>
-</table>
 <div class="container-fluid">
   <div class="row">
     <div class="col">
+      <table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
+        <thead class="table-primary">
+          <tr>
+            <th scope="col">INGRESOS</th>
+            <th scope="col">CANTIDAD</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <th>Ingresos</th>
+          <td>$<%=ingresos.toLocaleString('de-DE')%></td>
+        </tr>
+        <tr>
+          <th>Ingresos Mensuales</th>
+          <td>$<%=ingresoMensual.toLocaleString('de-DE')%></td>
+        </tr>
+        <tr>
+          <th>Ingresos Pasivos</th>
+          <td>$<%=activos.toLocaleString('de-DE')%></td>
+        </tr>
+        </tbody>
+      </table>
+      <br>
+      <table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
+        <thead class="table-primary">
+          <tr>
+            <th scope="col">GASTOS</th>
+            <th scope="col">CANTIDAD</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <th>Gastos Generales</th>
+          <td>$<%=gastos.toLocaleString('de-DE')%></td>
+        </tr>
+        <tr>
+          <th>Gastos Mensuales</th>
+          <td>$<%=gastoMensual.toLocaleString('de-DE')%></td>
+        </tr>
+        <tr>
+          <th>Gastos de Pasivos</th>
+          <td>$<%=pasivos.toLocaleString('de-DE')%></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      <h4>Objetivo: <%=pasivosMeta%>%</h4>
+      <h5>Ingresos: $<%=ingresoMensual.toLocaleString('de-DE')%></h5>
+      <h5>Gastos: $<%=activos.toLocaleString('de-DE')%></h5>
+      <hr>
+      <h5>Cash Flow: $<%=cashflow.toLocaleString('de-DE')%></h5>
+
+
+    </div>
+  </div>
+</div>
+
+
+<hr>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-6">
       <table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
           <thead class="table-primary">
             <tr>
@@ -85,12 +102,12 @@
             <% usuario.activos.forEach(function(activo){ %>
             <tr>
               <th><%=activo.nombre%></th>
-              <td><%= activo.valor %></td>
+              <td>$<%= activo.valor.toLocaleString('de-DE') %></td>
             </tr>
             <% }) %>
       </table>
     </div>
-    <div class="col">
+    <div class="col-lg-6">
       <table class="table table-sm table-bordered table-hover" style="max-width: 600px;">
           <thead class="table-primary">
             <tr>
@@ -102,14 +119,12 @@
             <% usuario.pasivos.forEach(function(pasivo){ %>
             <tr>
               <th><%=pasivo.nombre%></th>
-              <td><%= pasivo.valor %></td>
+              <td>$<%= pasivo.valor.toLocaleString('de-DE') %></td>
             </tr>
             <% }) %>
       </table>
     </div>
   </div>
 </div>
-
-
 
 <%- include('partials/footer') %>

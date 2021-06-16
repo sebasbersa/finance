@@ -1,19 +1,19 @@
-<% if(flujo.name === "Ingreso" || flujo.name === "Gasto" ){ %>
+<% if(flujo.id === 1 || flujo.id === 2 ){ %>
 <form class="form-group" action="/flujos/filtros" method="post">
 <input class="fechas" type="date" name="dateIn" value=<%=dateIn%>>
 <input class="fechas" type="date" name="dateEnd" value=<%=dateEnd%>>
-<input type="hidden" name="tipoFlujo" value=<%=flujo.name%>>
+<input type="hidden" name="tipoFlujo" value=<%=flujo.id%>>
 <button type="submit" class="btn btn-primary" name="button">Filtrar</button>
 </form>
 <form class="" action="/flujos/xFiltro" method="post">
-  <input type="hidden" name="tipoFlujo" value=<%=flujo.name%>>
+  <input type="hidden" name="tipoFlujo" value=<%=flujo.id%>>
   <button type="submit" class="btn-xfiltro" name="button">Borrar filtro</button>
 </form>
 <% } %>
 <table class="table tablaFlujos">
   <thead>
     <tr>
-      <% if(flujo.name === "Ingreso" || flujo.name === "Gasto" ){ %>
+      <% if(flujo.id === "1" || flujo.id === "2" ){ %>
       <th scope="col">Fecha</th>
       <% } %>
       <th scope="col">Nombre</th>
@@ -24,7 +24,7 @@
   <tbody>
       <% listFlujo.forEach(function(flujos){ %>
       <tr>
-      <% if(flujo.name === "Ingreso" || flujo.name === "Gasto" ){ %>
+      <% if(flujo.id === 1 || flujo.id === 2 ){ %>
         <th scope="row">
           <% if(flujos.fecha.getDate()+1<10){%>
           0<%=flujos.fecha.getDate()+1%>
@@ -46,7 +46,7 @@
       <td>$<%=Number(flujos.valor).toLocaleString('de-DE')%></td>
       <td>
         <form method="POST" action="flujos/delete">
-          <input type="hidden" name="tipoFlujo" value=<%=flujo.name%>>
+          <input type="hidden" name="tipoFlujo" value=<%=flujo.id%>>
           <button id=<%= flujos.id %> class="btn btn-outline-danger btn-sm" type="submit" name='id' value=<%= flujos.id %> >Eliminar</button>
         </form>
       </td>
@@ -61,7 +61,7 @@
       <% } else { %>
           <li  class="page-item">
             <form action="/flujos/pages" method="post">
-              <input type="hidden" name="tipoFlujo" value=<%=flujo.name%>>
+              <input type="hidden" name="tipoFlujo" value=<%=flujo.id%>>
               <button class="page-link" type="submit" name="button" value="1">First</button>
             </form>
           </li>
@@ -75,7 +75,7 @@
               <li class="page-item active" ><a class="page-link" ><%= i %></a></li>
           <% } else { %>
             <form action="/flujos/pages" method="post">
-              <input type="hidden" name="tipoFlujo" value=<%=flujo.name%>>
+              <input type="hidden" name="tipoFlujo" value=<%=flujo.id%>>
               <button class="page-link" type="submit" name="button" value=<%= i %>><%= i %></button>
             </form>
           <% } %>

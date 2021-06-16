@@ -93,6 +93,14 @@ const userEmail = 'sebas.ing.civ.berrios@gmail.com';
 // const ingresoMensual = [];
 // const ingresoPasivo = []
 
+//id:
+// ingreso = 1
+// gastos = 2
+// ingresos mensuales = 3
+// gastos mensuales = 4
+// activos = 5
+// pasivos = 6
+
 //-------- const pagination tables
 const perPage = 6;
 
@@ -109,6 +117,7 @@ app.route('/')
   let sumPasivo = 0;
   let sumIngreso = 0;
   let sumGasto = 0;
+  let porcentajePasivos = 0;
   Usuario.findOne({email: userEmail}, function(err, foundUser){
     if (!err){
       foundUser.activos.forEach((activo) => {
@@ -123,12 +132,15 @@ app.route('/')
       foundUser.gastos.forEach((gasto) => {
         if(format.mismoMes(mes, gasto.fecha)){sumGasto = sumGasto + gasto.valor;};
       });
-      foundUser.ingresosMensuales.forEach((ingreso) => {
-        sumIngresoMensual = sumIngresoMensual + ingreso.valor;
+      foundUser.ingresosMensuales.forEach((ingresoMensual) => {
+        sumIngresoMensual = sumIngresoMensual + ingresoMensual.valor;
       });
-      foundUser.gastosMensuales.forEach((gasto) => {
-        sumGastoMensual = sumGastoMensual + gasto.valor;
+      foundUser.gastosMensuales.forEach((gastoMensual) => {
+        sumGastoMensual = sumGastoMensual + gastoMensual.valor;
       });
+
+      porcentajePasivos = (sumActivo - sumGastoMensual)/100;
+
       res.render("home", {
         activos: sumActivo,
         pasivos: sumPasivo,
@@ -137,7 +149,9 @@ app.route('/')
         usuario: foundUser,
         mes: mes,
         ingresoMensual: sumIngresoMensual,
-        gastoMensual: sumGastoMensual
+        gastoMensual: sumGastoMensual,
+        pasivosMeta: porcentajePasivos,
+        cashflow: 200000
       });
     }
   });
@@ -149,100 +163,6 @@ app.route('/')
 res.redirect(url)
 });
 
-
-//-----------INGRESOS------------------------
-
-//-----------INGRESOS------------------------
-// app.route('/activos')
-// .get(function(req, res){
-// const page = req.query.page || 1;
-// const dateIn = req.query.dateIn;
-// const dateEnd = req.query.dateEnd;
-// Usuario.findOne({email: userEmail}, function(err, foundUser){
-//     if(err){
-//         console.log(err);
-//     }else{
-//         if(dateIn != null && dateEnd != null){
-//           res.render("pages/flujos", {
-//             pages: Math.ceil(foundUser.activos.length/perPage),
-//             current: page,
-//             dateIn: dateIn,
-//             dateEnd: dateEnd,
-//             listActivos: foundUser.activos.filter(activo => format.entreFechas(activo.fecha, dateIn, dateEnd)).slice(perPage * page - perPage , perPage * page )
-//             });
-//           }else{
-//             res.render("pages/activos", {
-//               pages: Math.ceil(foundUser.activos.length/perPage),
-//               current: page,
-//               dateIn: dateIn,
-//               dateEnd: dateEnd,
-//               listActivos: foundUser.activos.slice(perPage * page - perPage , perPage * page )});
-//             }
-//     }
-// });
-// })
-// .post(function(req, res){
-//   const page = req.query.page || 1;
-//   const dateIn = String(req.body.dateIn);
-//   const dateEnd = String(req.body.dateEnd);
-//   if(dateIn != null && dateEnd != null){
-//     dIn = dateIn;
-//     dEnd = dateEnd;
-//   res.redirect("/activos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
-// }
-// });
-//
-// app.post("/activos/pages", function(req, res){
-//   const page = req.body.button;
-//   const dateIn = dIn;
-//   const dateEnd = dEnd;
-//   let url = "/activos";
-//     url = url + "?page=" + page;
-//     if (dateIn != null && dateEnd != null){
-//       url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
-//     }
-//     res.redirect(url);
-//
-// });
-// app.post("/activos/xFiltro", function(req, res){
-//         const page = 1;
-//         const dateIn = null;
-//         const dateEnd = null;
-//         dIn = null;
-//         dEnd = null;
-//         let url = "/activos";
-//           url = url + "?page=" + page;
-//           if (dateIn != null && dateEnd != null){
-//             url = url + "&dateIn=" + String(dateIn) + "&dateEnd=" + String(dateEnd);
-//           }
-//           res.redirect(url);
-//       });
-//
-// app.post("/activos/nActivo", function(req,res){
-//
-//           const nActivo = req.body.nombreActivo;
-//           const cantidad = req.body.valorActivo;
-//
-//           let date = new Date(req.body.fecha);
-//           //si la fecha viene vacía se ingresa la fecha de hoy
-//           if (req.body.fecha === ''){
-//               date = new Date();
-//               date.setDate(date.getDate() - 1);
-//           }
-//
-//           const activo = new Dinero ({nombre: nActivo, valor: cantidad});
-//
-//           Usuario.findOne({email: userEmail}, function(err,found){
-//           if (!err){
-//               found.activos.push(activo);
-//               found.save();
-//           }
-//           });
-//           res.redirect("/activos");
-//           });
-
-
-
 //flujos
 app.route('/ingresos')
   .get(function(req, res){
@@ -251,7 +171,7 @@ app.route('/ingresos')
     const dateEnd = req.query.dateEnd;
     dIn = dateIn;
     dEnd = dateEnd;
-    const flujo = {name: "Ingreso", tabla: "Ingresos"}
+    const flujo = {id: 1, name: "Ingreso", tabla: "Ingresos", descripcion: "Ingresos esporádicos no contemplados mensualmente"}
     //res.render('pages/flujos', {flujo})
     Usuario.findOne({email: userEmail}, function(err, foundUser){
       if(!err){
@@ -273,7 +193,7 @@ app.route('/gastos')
     const dateEnd = req.query.dateEnd;
     dIn = dateIn;
     dEnd = dateEnd;
-    const flujo = {name: "Gasto", tabla: "Gastos"}
+    const flujo = {id:2, name: "Gasto", tabla: "Gastos", descripcion: "Gastos esporádicos no contemplados mensualmente"}
     //res.render('pages/flujos', {flujo})
     Usuario.findOne({email: userEmail}, function(err, foundUser){
       if(!err){
@@ -294,7 +214,7 @@ app.route('/activos')
   const page = req.query.page || 1;
   const dateIn = req.query.dateIn;
   const dateEnd = req.query.dateEnd;
-  const flujo = {name: "Activo", tabla: "Activos"}
+  const flujo = {id: 5, name: "Activo", tabla: "Activos", descripcion: "Activos, inversiones que dejan dinero en tu bolsillo"}
   Usuario.findOne({email: userEmail}, function(err, foundUser){
       if(!err){
         res.render("pages/flujos", {
@@ -312,7 +232,7 @@ app.route('/pasivos')
     const page = req.query.page || 1;
     const dateIn = req.query.dateIn;
     const dateEnd = req.query.dateEnd;
-    const flujo = {name: "Pasivo", tabla: "Pasivos"}
+    const flujo = {id: 6, name: "Pasivo", tabla: "Pasivos",descripcion: "Pasivos, objetos, deudas, todo aquello que quita dinero de tu bolsillo"}
     Usuario.findOne({email: userEmail}, function(err, foundUser){
         if(!err){
           res.render("pages/flujos", {
@@ -322,6 +242,44 @@ app.route('/pasivos')
               dateIn: dateIn,
               dateEnd: dateEnd,
               listFlujo: foundUser.pasivos.slice(perPage * page - perPage , perPage * page )});
+            }
+          });
+    });
+
+app.route('/ingresomensual')
+  .get(function(req, res){
+  const page = req.query.page || 1;
+  const dateIn = req.query.dateIn;
+  const dateEnd = req.query.dateEnd;
+  const flujo = {id: 3,name: "Ingreso Mensual", tabla: "Ingresos Mensuales", descripcion: "Ingresos mensuales que requieren de tu tiempo, como el trabajo"}
+  Usuario.findOne({email: userEmail}, function(err, foundUser){
+      if(!err){
+        res.render("pages/flujos", {
+            flujo,
+            pages: Math.ceil(foundUser.ingresosMensuales.length/perPage),
+            current: page,
+            dateIn: dateIn,
+            dateEnd: dateEnd,
+            listFlujo: foundUser.ingresosMensuales.slice(perPage * page - perPage , perPage * page )});
+          }
+        });
+  });
+
+app.route('/gastomensual')
+    .get(function(req, res){
+    const page = req.query.page || 1;
+    const dateIn = req.query.dateIn;
+    const dateEnd = req.query.dateEnd;
+    const flujo = {id: 4, name: "Gasto Mensual", tabla: "Gastos Mensuales", descripcion: "Gastos mensuales que no son parte de un patrimonio, como compras de mercadería"}
+    Usuario.findOne({email: userEmail}, function(err, foundUser){
+        if(!err){
+          res.render("pages/flujos", {
+              flujo,
+              pages: Math.ceil(foundUser.gastosMensuales.length/perPage),
+              current: page,
+              dateIn: dateIn,
+              dateEnd: dateEnd,
+              listFlujo: foundUser.gastosMensuales.slice(perPage * page - perPage , perPage * page )});
             }
           });
     });
@@ -340,25 +298,36 @@ app.post('/flujos/nFlujo', function(req, res){
 
           Usuario.findOne({email: userEmail}, function(err,found){
           if (!err){
-            if(req.body.tipoFlujo === "Ingreso"){
+            if(req.body.tipoFlujo === "1"){
+              console.log("correcto");
               found.ingresos.push(newFlujo);
               found.save();
               res.redirect("/ingresos");
             }
-            if(req.body.tipoFlujo === "Gasto"){
+            if(req.body.tipoFlujo === "2"){
               found.gastos.push(newFlujo);
               found.save();
               res.redirect("/gastos");
             }
-            if(req.body.tipoFlujo === "Activo"){
+            if(req.body.tipoFlujo === "5"){
               found.activos.push(newDinero);
               found.save();
               res.redirect("/activos");
             }
-            if(req.body.tipoFlujo === "Pasivo"){
+            if(req.body.tipoFlujo === "6"){
               found.pasivos.push(newDinero);
               found.save();
               res.redirect("/pasivos");
+            }
+            if(req.body.tipoFlujo === "3"){
+              found.ingresosMensuales.push(newDinero);
+              found.save();
+              res.redirect("/ingresomensual");
+            }
+            if(req.body.tipoFlujo === "4"){
+              found.gastosMensuales.push(newDinero);
+              found.save();
+              res.redirect("/gastomensual");
             }
           }
           });
@@ -367,8 +336,7 @@ app.post('/flujos/nFlujo', function(req, res){
 app.route('/flujos/delete')
   .post(function(req, res){
           const elemento = req.body;
-          if(req.body.tipoFlujo === "Ingreso"){
-            console.log("es ingresos");
+          if(req.body.tipoFlujo === "1"){
             Usuario.updateOne(
                 { email: userEmail },
                 { $pull: { ingresos: { _id: elemento.id } } },
@@ -380,7 +348,7 @@ app.route('/flujos/delete')
               );
             res.redirect("/ingresos");
         }
-        if(req.body.tipoFlujo==="Gasto"){
+        if(req.body.tipoFlujo==="2"){
           Usuario.updateOne(
               { email: userEmail },
               { $pull: { gastos: { _id: elemento.id } } },
@@ -393,7 +361,7 @@ app.route('/flujos/delete')
           res.redirect("/gastos");
       }
 
-      if(req.body.tipoFlujo==="Activo"){
+      if(req.body.tipoFlujo==="5"){
         Usuario.updateOne(
             { email: userEmail },
             { $pull: { activos: { _id: elemento.id } } },
@@ -405,7 +373,7 @@ app.route('/flujos/delete')
           );
         res.redirect("/activos");
     }
-    if(req.body.tipoFlujo==="Pasivo"){
+    if(req.body.tipoFlujo==="6"){
       Usuario.updateOne(
           { email: userEmail },
           { $pull: { pasivos: { _id: elemento.id } } },
@@ -417,26 +385,57 @@ app.route('/flujos/delete')
         );
       res.redirect("/pasivos");
   }
+  if(req.body.tipoFlujo==="3"){
+    Usuario.updateOne(
+        { email: userEmail },
+        { $pull: { ingresosMensuales: { _id: elemento.id } } },
+        { multi: false },function(err){
+            if(err){
+                console.log(err);
+            }
+        }
+      );
+    res.redirect("/ingresomensual");
+  }
+  if(req.body.tipoFlujo==="4"){
+    Usuario.updateOne(
+        { email: userEmail },
+        { $pull: { gastosMensuales: { _id: elemento.id } } },
+        { multi: false },function(err){
+            if(err){
+                console.log(err);
+            }
+        }
+      );
+    res.redirect("/gastomensual");
+  }
       })
 
 app.post('/flujos/filtros', function(req, res){
     const page = req.query.page || 1;
     const dateIn = String(req.body.dateIn);
     const dateEnd = String(req.body.dateEnd);
+
     if(dateIn != null && dateEnd != null){
       dIn = dateIn;
       dEnd = dateEnd;
-      if(req.body.tipoFlujo === "Ingreso"){
+      if(req.body.tipoFlujo === "1"){
         res.redirect("/ingresos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
       }
-      if(req.body.tipoFlujo === "Gasto"){
+      if(req.body.tipoFlujo === "2"){
         res.redirect("/gastos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
       }
-      if(req.body.tipoFlujo === "Activo"){
+      if(req.body.tipoFlujo === "5"){
         res.redirect("/activos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
       }
-      if(req.body.tipoFlujo === "Pasivo"){
+      if(req.body.tipoFlujo === "6"){
         res.redirect("/pasivos?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
+      }
+      if(req.body.tipoFlujo === "3"){
+        res.redirect("/ingresomensual?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
+      }
+      if(req.body.tipoFlujo === "4"){
+        res.redirect("/gastomensual?dateIn=" + dateIn + "&dateEnd=" + dateEnd);
       }
   }
   });
@@ -448,17 +447,23 @@ app.post("/flujos/xFiltro", function(req, res){
     dIn = null;
     dEnd = null;
     let url = "";
-    if(req.body.tipoFlujo === "Ingreso"){
+    if(req.body.tipoFlujo === "1"){
       url = "/ingresos";
     }
-    if(req.body.tipoFlujo === "Gasto"){
+    if(req.body.tipoFlujo === "2"){
       url = "/gastos";
     }
-    if(req.body.tipoFlujo === "Activo"){
+    if(req.body.tipoFlujo === "5"){
       url = "/activos";
     }
-    if(req.body.tipoFlujo === "Pasivo"){
+    if(req.body.tipoFlujo === "6"){
       url = "/pasivos";
+    }
+    if(req.body.tipoFlujo === "3"){
+      url = "/ingresomensual";
+    }
+    if(req.body.tipoFlujo === "4"){
+      url = "/gastomensual";
     }
       url = url + "?page=" + page;
       if (dateIn != null && dateEnd != null){
@@ -472,17 +477,23 @@ app.post("/flujos/pages", function(req, res){
     const dateIn = dIn;
     const dateEnd = dEnd;
     let url = "";
-    if(req.body.tipoFlujo === "Ingreso"){
+    if(req.body.tipoFlujo === "1"){
       url = "/ingresos";
     }
-    if(req.body.tipoFlujo === "Gasto"){
+    if(req.body.tipoFlujo === "2"){
       url = "/gastos";
     }
-    if(req.body.tipoFlujo === "Activo"){
+    if(req.body.tipoFlujo === "5"){
       url = "/activos";
     }
-    if(req.body.tipoFlujo === "Pasivo"){
+    if(req.body.tipoFlujo === "6"){
       url = "/pasivos";
+    }
+    if(req.body.tipoFlujo === "3"){
+      url = "/ingresomensual";
+    }
+    if(req.body.tipoFlujo === "4"){
+      url = "/gastomensual";
     }
       url = url + "?page=" + page;
       if (dateIn != null && dateEnd != null){
@@ -490,8 +501,6 @@ app.post("/flujos/pages", function(req, res){
       }
       res.redirect(url);
   });
-
-
 
 //inicializacion del puerto
 app.listen(process.env.PORT || 3000, function(){
