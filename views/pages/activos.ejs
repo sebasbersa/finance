@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-5">
+      <div align='center'>
+        <h3 style="text-align: center;">Nuevo Activo</h3>
+        <form class="form-group nuevo-item" action="/activos/nActivo" method="POST">
+          <input  class="form-control" id="nombreIngreso" name="nombreActivo" type="text" placeholder="Nuevo Ingreso">
+          <input  class="form-control" id="valorIngreso" name="valorActivo" type="number" placeholder="Cantidad">
+          <button  class="btn btn-primary" type="submit" name="bIngreso">Ingresar</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <h3 style="text-align: center;">Tabla de Activos</h3>
+      <%- include('../partials/components/activos') %>
+    </div>
+  </div>
+</div>
+
+
+
+
+<%- include('../partials/footer') %>

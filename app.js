@@ -140,6 +140,11 @@ app.route('/')
       });
 
       porcentajePasivos = (sumActivo - sumGastoMensual)/100;
+      if(sumActivo-sumGastoMensual <0){
+        porcentajePasivos = 0;
+      }
+
+      cashflow = sumIngresoMensual + sumIngreso + sumActivo - sumPasivo - sumGastoMensual - sumGasto;
 
       res.render("home", {
         activos: sumActivo,
@@ -151,7 +156,7 @@ app.route('/')
         ingresoMensual: sumIngresoMensual,
         gastoMensual: sumGastoMensual,
         pasivosMeta: porcentajePasivos,
-        cashflow: 200000
+        cashflow: cashflow
       });
     }
   });
