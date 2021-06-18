@@ -507,6 +507,10 @@ app.post("/flujos/pages", function(req, res){
       res.redirect(url);
   });
 
+app.post("/agregarMes", function(req, res){
+  console.log("it works!");
+});
+
 //inicializacion del puerto
 app.listen(process.env.PORT || 3000, function(){
     console.log("se escucha el puerto 3.000");
