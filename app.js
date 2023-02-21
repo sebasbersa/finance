@@ -3,11 +3,16 @@ const express = require("express");
 const ejs = require("ejs");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const session = require("express-session");
+const passport = require("passport");
+const passportLocal = require("passport-local");
+const passportLocalMongoose = require("passport-local-mongoose");
 
 //requiring of modules created by me
 const format = require(__dirname + "/app_components/format.js");
 
 const app = express();
+
 
 //setting ejs
 app.set('view engine', 'ejs');
@@ -17,11 +22,21 @@ app.use(bodyParser.urlencoded({
     extended: true
   }));
 
+app.use(session({
+  secret: "finance-secret, real secret right.",
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 //MONGOOSE CONECTION
 mongoose.connect("mongodb+srv://admin-sebastian:910nine99@cluster0.xevar.mongodb.net/financeDB", {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
+mongoose.set('useCreateIndex', true);
 
 //SCHEMAS MONGOOSE
 const flujoSchema = ({
@@ -34,7 +49,9 @@ const dineroSchema = ({
   valor: Number
 });
 
-const usuarioSchema = ({
+
+
+const usuarioSchema = new mongoose.Schema({
     nombre: String,
     email: String,
     password: String,
@@ -46,10 +63,17 @@ const usuarioSchema = ({
     gastosMensuales: [dineroSchema]
 });
 
+usuarioSchema.plugin(passportLocalMongoose);
 
-//
 // //MODELS MONGOOSE
-const Usuario = mongoose.model("Usuario", usuarioSchema);
+const Usuario = new mongoose.model("Usuario", usuarioSchema);
+
+passport.use(Usuario.createStrategy());
+
+
+passport.serializeUser(Usuario.serializeUser())
+passport.deserializeUser(Usuario.deserializeUser())
+
 const Flujo = mongoose.model("Flujo", flujoSchema);
 const Dinero = mongoose.model("Dinero", dineroSchema);
 
@@ -57,32 +81,12 @@ let dIn = null;
 let dEnd= null;
 
 const thisDay = new Date();
-//const fecha = new Date(2021, 06, 12);
-//const primero = new Flujo({nombre: "Nuevos", valor: "0", fecha: fecha})
 
-// const primerUsuario = new Usuario ({
-//     nombre: 'Sebastian',
-//     email: 'sebas.ing.civ.berrios@gmail.com',
-//     password: '123456',
-//     ingresos: [],
-//     gastos: [],
-//     activos: [],
-//     pasivos: [],
-//     ingresosMensuales: [],
-//     gastosMensuales: []
-// });
-//
-// primerUsuario.save();
-// console.log(primerUsuario);
-
-// Usuario.findOne({nombre: 'Sebastian'}, function(err,found){
-//     if (!err){
-//         console.log(found);
-//         const ingreso1 = new Flujo ({nombre: "pagina web", valor: "15000", fecha: "06-05-2021"});
-//         found.ingresos.push(ingreso1);
-//         found.save();
-//     }
-// });
+app.use((req, res, next)=> {
+  console.log(req.session);
+  console.log(req.user);
+  next();
+});
 
 const userEmail = 'sebas.ing.civ.berrios@gmail.com';
 
@@ -104,62 +108,97 @@ const userEmail = 'sebas.ing.civ.berrios@gmail.com';
 //-------- const pagination tables
 const perPage = 6;
 
+//---------LOGIN AND REGISTER ---------------
+app.get("/register", function(req, res){
+  res.render("pages/register");
+});
+
+app.get("/login", function(req, res){
+  res.render("pages/login");
+});
+
+app.post("/register", function(req, res){
+Usuario.register({username: req.body.email}, req.body.password,function(err, user){
+  if(err){
+    console.log(err);
+    res.redirect("/register");
+  }
+  else{
+    passport.authenticate("local")(req, res, function(){
+      res.redirect("/");
+    });
+  }
+});
+});
+
+app.post("/login", function(req, res){
+
+});
+
+
+
 //-----------HOME----------------------------
 app.route('/')
 .get(function(req, res){
-  let mes = req.query.mes || String(thisDay.getFullYear()) + "-" +String(thisDay.getMonth()+1);
-  if(parseInt(thisDay.getMonth()) +1 < 10){
-    mes = req.query.mes || String(thisDay.getFullYear()) + "-" + 0 + String(thisDay.getMonth()+1);
-  }
-  let sumIngresoMensual = 0;
-  let sumGastoMensual = 0;
-  let sumActivo= 0;
-  let sumPasivo = 0;
-  let sumIngreso = 0;
-  let sumGasto = 0;
-  let porcentajePasivos = 0;
-  Usuario.findOne({email: userEmail}, function(err, foundUser){
-    if (!err){
-      foundUser.activos.forEach((activo) => {
-        sumActivo = sumActivo + activo.valor;
-      });
-      foundUser.pasivos.forEach((pasivo) => {
-        sumPasivo = sumPasivo + pasivo.valor;
-      });
-      foundUser.ingresos.forEach((ingreso) => {
-        if(format.mismoMes(mes, ingreso.fecha)){sumIngreso = sumIngreso + ingreso.valor;};
-      });
-      foundUser.gastos.forEach((gasto) => {
-        if(format.mismoMes(mes, gasto.fecha)){sumGasto = sumGasto + gasto.valor;};
-      });
-      foundUser.ingresosMensuales.forEach((ingresoMensual) => {
-        sumIngresoMensual = sumIngresoMensual + ingresoMensual.valor;
-      });
-      foundUser.gastosMensuales.forEach((gastoMensual) => {
-        sumGastoMensual = sumGastoMensual + gastoMensual.valor;
-      });
-
-      porcentajePasivos = (sumActivo - sumGastoMensual)/100;
-      if(sumActivo-sumGastoMensual <0){
-        porcentajePasivos = 0;
-      }
-
-      cashflow = sumIngresoMensual + sumIngreso + sumActivo - sumPasivo - sumGastoMensual - sumGasto;
-
-      res.render("home", {
-        activos: sumActivo,
-        pasivos: sumPasivo,
-        ingresos: sumIngreso,
-        gastos: sumGasto,
-        usuario: foundUser,
-        mes: mes,
-        ingresoMensual: sumIngresoMensual,
-        gastoMensual: sumGastoMensual,
-        pasivosMeta: porcentajePasivos,
-        cashflow: cashflow
-      });
+  if(req.isAuthenticated()){
+    let mes = req.query.mes || String(thisDay.getFullYear()) + "-" +String(thisDay.getMonth()+1);
+    if(parseInt(thisDay.getMonth()) +1 < 10){
+      mes = req.query.mes || String(thisDay.getFullYear()) + "-" + 0 + String(thisDay.getMonth()+1);
     }
-  });
+    let sumIngresoMensual = 0;
+    let sumGastoMensual = 0;
+    let sumActivo= 0;
+    let sumPasivo = 0;
+    let sumIngreso = 0;
+    let sumGasto = 0;
+    let porcentajePasivos = 0;
+    Usuario.findOne({email: userEmail}, function(err, foundUser){
+      if (!err){
+        foundUser.activos.forEach((activo) => {
+          sumActivo = sumActivo + activo.valor;
+        });
+        foundUser.pasivos.forEach((pasivo) => {
+          sumPasivo = sumPasivo + pasivo.valor;
+        });
+        foundUser.ingresos.forEach((ingreso) => {
+          if(format.mismoMes(mes, ingreso.fecha)){sumIngreso = sumIngreso + ingreso.valor;};
+        });
+        foundUser.gastos.forEach((gasto) => {
+          if(format.mismoMes(mes, gasto.fecha)){sumGasto = sumGasto + gasto.valor;};
+        });
+        foundUser.ingresosMensuales.forEach((ingresoMensual) => {
+          sumIngresoMensual = sumIngresoMensual + ingresoMensual.valor;
+        });
+        foundUser.gastosMensuales.forEach((gastoMensual) => {
+          sumGastoMensual = sumGastoMensual + gastoMensual.valor;
+        });
+
+        porcentajePasivos = (sumActivo - sumGastoMensual)/100;
+        if(sumActivo-sumGastoMensual <0){
+          porcentajePasivos = 0;
+        }
+
+        cashflow = sumIngresoMensual + sumIngreso + sumActivo - sumPasivo - sumGastoMensual - sumGasto;
+
+        res.render("home", {
+          activos: sumActivo,
+          pasivos: sumPasivo,
+          ingresos: sumIngreso,
+          gastos: sumGasto,
+          usuario: foundUser,
+          mes: mes,
+          ingresoMensual: sumIngresoMensual,
+          gastoMensual: sumGastoMensual,
+          pasivosMeta: porcentajePasivos,
+          cashflow: cashflow
+        });
+      }
+    });
+  }
+  else{
+    res.redirect("/register");
+  }
+
 })
 .post(function(req, res){
   let mes = req.body.fecha;
@@ -510,6 +549,9 @@ app.post("/flujos/pages", function(req, res){
 app.post("/agregarMes", function(req, res){
   console.log("it works!");
 });
+
+
+
 
 //inicializacion del puerto
 app.listen(process.env.PORT || 3000, function(){
